@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>WebSocket Authentication Demo</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="" />
+    <script type="application/javascript">
+        "use strict";
+        const initialise = async () => {
+            const apiEndpoint = document.getElementById('api_endpoint').value;
+            const token = document.getElementById('bearer_token').value;
+
+            generateConnectionURI(apiEndpoint, token);
+        };
+        const generateConnectionURI = async (apiEndpoint, token) => {
+            try {
+                addMessage(`Connecting to "${apiEndpoint}" with bearer token "${token}"`);
+                // ask the server for the url to connect to for a WebSocket
+                const createConnection = await fetch(`${apiEndpoint}/connections`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', "Authorization": `Bearer ${token}` },
+                    body: JSON.stringify({}, 0, null)
+                });
+                const endpoint = createConnection.headers.get('Location');
+                addMessage(`Retrieved endpoint ${endpoint}`);
+                document.getElementById('ws_endpoint').value = endpoint;
+                addMessage(`Press Open WebSocket to connect`);
+            } catch (e) {
+                addMessage(e);
+            }
+        };
+        const openWebSocket = async () => {
+            const endpoint = document.getElementById('ws_endpoint').value;
+
+            connect(endpoint);
+        };
+        const connect = (endpoint) => {
+            // Open our secure websocket
+            const socket = new WebSocket(endpoint);
+            socket.onopen = (event) => {
+                addMessage('opened: ' + JSON.stringify(event));
+            }
+            socket.onclose = (event) => {
+                addMessage('closed: ' + JSON.stringify(event));
+            }
+            socket.onmessage = (message) => {
+                addMessage('onmessage: ' + message.data);
+            }
+            socket.onerror = (error) => {
+                addMessage('onerror: ' + JSON.stringify(error));
+            }
+        };
+        const addMessage = (message) => {
+            const messages = document.getElementById("messages");
+            let li = document.createElement('li');
+            li.appendChild(document.createTextNode(message));
+            messages.appendChild(li);
+        };
+        document.addEventListener("DOMContentLoaded", function () {
+            addMessage("Enter token and press 'Generate WebSocket URI'");
+            addMessage("Alternatively, enter a WebSocket Endpoint URI and Open WebSocket directly");
+        }, false);
+    </script>
+    <style>
+        .container {
+            padding: 0 2em;
+        }
+
+        /* Reset */
+        html,
+        body,
+        div,
+        span,
+        applet,
+        object,
+        iframe,
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        p,
+        blockquote,
+        pre,
+        a,
+        abbr,
+        acronym,
+        address,
+        big,
+        cite,
+        code,
+        del,
+        dfn,
+        em,
+        img,
+        ins,
+        kbd,
+        q,
+        s,
+        samp,
+        small,
+        strike,
+        strong,
+        sub,
+        sup,
+        tt,
+        var,
+        b,
+        u,
+        i,
+        center,
+        dl,
+        dt,
+        dd,
+        ol,
+        ul,
+        li,
+        fieldset,
+        form,
+        label,
+        legend,
+        table,
+        caption,
+        tbody,
+        tfoot,
+        thead,
+        tr,
+        th,
+        td,
+        article,
+        aside,
+        canvas,
+        details,
+        embed,
+        figure,
+        figcaption,
+        footer,
+        header,
+        hgroup,
+        menu,
+        nav,
+        output,
+        ruby,
+        section,
+        summary,
+        time,
+        mark,
+        audio,
+        video {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            font-size: 100%;
+            font: inherit;
+            vertical-align: baseline;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        /* Variables */
+        :root {
+            --desktop-font-size: 1.3rem/1.5;
+            --mobile-font-size: 1.1rem/1.4;
+            --text-color: #2d2d2d;
+            --link-color: blue;
+            --primary-color: lightsteelblue;
+            --secondary-color: aliceblue;
+            --tertiary-color: whitesmoke;
+        }
+
+        /* Typography */
+        body {
+            color: var(--text-color);
+        }
+
+        body,
+        input {
+            font: var(--desktop-font-size) -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        p,
+        blockquote,
+        dl,
+        img,
+        figure {
+            margin: 2rem 0;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-weight: bold;
+            line-height: 1.2;
+        }
+
+        h1 {
+            font-size: 200%;
+        }
+
+        h2 {
+            font-size: 150%;
+        }
+
+        h3 {
+            font-size: 120%;
+        }
+
+        h4,
+        h5,
+        h6 {
+            font-size: 100%;
+        }
+
+        h5,
+        h6 {
+            text-transform: uppercase;
+        }
+
+        header h1 {
+            border-bottom: 1px solid;
+        }
+
+        p {
+            margin: 2rem 0;
+        }
+
+        a,
+        a:visited {
+            color: var(--link-color);
+        }
+
+        strong,
+        time,
+        b {
+            font-weight: bold;
+        }
+
+        em,
+        dfn,
+        i {
+            font-style: italic;
+        }
+
+        sub {
+            font-size: 60%;
+            vertical-align: bottom;
+        }
+
+        small {
+            font-size: 80%;
+        }
+
+        blockquote,
+        q {
+            background: var(--secondary-color);
+            border-left: 10px solid var(--primary-color);
+            display: block;
+            font-family: "Georgia", serif;
+            padding: 1rem;
+        }
+
+        blockquote p:first-child {
+            margin-top: 0;
+        }
+
+        cite {
+            font-family: "Georgia", serif;
+            font-style: italic;
+            font-weight: bold;
+        }
+
+        kbd,
+        code,
+        samp,
+        pre,
+        var {
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        code,
+        pre {
+            background: var(--tertiary-color);
+            padding: 0.5rem 1rem;
+        }
+
+        code pre,
+        pre code {
+            padding: 0;
+        }
+
+        /* Elements */
+        hr {
+            background: var(--text-color);
+            border: 0;
+            height: 1px;
+            margin: 4rem 0;
+        }
+
+        img {
+            display: block;
+            height: auto;
+            max-width: 100%;
+        }
+
+        figure {
+            border: 1px solid var(--primary-color);
+            display: inline-block;
+            padding: 1rem;
+            width: auto;
+        }
+
+        figure img {
+            margin: 0;
+        }
+
+        figure figcaption {
+            font-size: 80%;
+            margin-top: 0.5rem;
+        }
+
+        ul,
+        ol {
+            margin: 2rem 0;
+            padding: 0 0 0 4rem;
+        }
+
+        dl dd {
+            padding-left: 2rem;
+        }
+
+        table {
+            border: 1px solid var(--primary-color);
+            border-collapse: collapse;
+            table-layout: fixed;
+            width: 100%;
+        }
+
+        table caption {
+            margin: 2rem 0;
+        }
+
+        table thead {
+            text-align: center;
+        }
+
+        table tbody {
+            text-align: right;
+        }
+
+        table tr {
+            border-bottom: 1px solid var(--primary-color);
+        }
+
+        table tbody tr:nth-child(even) {
+            background: var(--tertiary-color);
+        }
+
+        table th {
+            background: var(--secondary-color);
+            font-weight: bold;
+        }
+
+        table th,
+        table td {
+            padding: 1rem;
+        }
+
+        table th:not(last-of-type),
+        table td:not(last-of-type) {
+            border-right: 1px solid var(--primary-color);
+        }
+
+        input {
+            appearance: none;
+            border: 1px solid var(--text-color);
+            display: block;
+            margin: 0.5rem 0;
+            padding: 0.8rem;
+            width: 100%;
+        }
+
+        input:focus,
+        input:active {
+            background-color: var(--secondary-color);
+            border-color: var(--link-color);
+        }
+
+        textarea {
+            appearance: none;
+            border: 1px solid var(--text-color);
+            display: block;
+            margin: 0.5rem 0;
+            padding: 0.8rem;
+        }
+
+        /* Mobile Styling */
+        @media screen and (max-width: 50rem) {
+
+            body,
+            input {
+                font: var(--mobile-font-size) -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"
+            }
+
+            table {
+                table-layout: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <div class="container">
+            <h1>API</h1>
+            <label for="api_endpoint">Endpoint URI</label>
+            <input id="api_endpoint" type="text" value="http://localhost:8080/wssrv">
+            <label for="bearer_token">Authorization: Bearer </label>
+            <textarea id="bearer_token" style="width: 100%"></textarea>
+            <button onclick="initialise()">Generate WebSocket URI</button>
+        </div>
+        <div class="container">
+            <h1>WebSocket</h1>
+            <label for="ws_endpoint">Endpoint URI</label>
+            <input id="ws_endpoint" type="text" value="">
+            <button onclick="openWebSocket()">Open WebSocket</button>
+        </div>
+        <div class="container">
+            <h1>Messages</h1>
+            <ol id="messages">
+            </ol>
+        </div>
+    </main>
+</body>
+
+</html>
