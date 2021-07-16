@@ -20,7 +20,7 @@ public class SecuredServerEndpoint {
         log.info("generating endpoint for user with token " + securityContext.getUserPrincipal().getName());
 
         // Create an access token that's valid only once for this user
-        final boolean isSecure = "https".equals(ui.getBaseUri().getScheme());
+        final boolean isSecure = "https".equals(ui.getRequestUri().getScheme());
         final TokenCacheListener.TokenCache shortLivedTokenCache = (TokenCacheListener.TokenCache) servletContext.getAttribute(TokenCacheListener.KEY);
         final String token = shortLivedTokenCache.generateSingleUseToken(securityContext.getUserPrincipal());
 

@@ -11,6 +11,13 @@ import javax.websocket.server.ServerEndpointConfig;
 public class MessagingConfigurator extends ServerEndpointConfig.Configurator {
 
     @Override
+    public boolean checkOrigin(final String originHeaderValue) {
+        // It is critical that the origin is validated to prevent leaking cookies to malicious sites
+        // https://christian-schneider.net/CrossSiteWebSocketHijacking.html
+        return super.checkOrigin(originHeaderValue);
+    }
+
+    @Override
     public void modifyHandshake(final ServerEndpointConfig config, final HandshakeRequest request, final HandshakeResponse response) {
         super.modifyHandshake(config, request, response);
 

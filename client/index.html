@@ -36,19 +36,25 @@
 
             connect(endpoint);
         };
+        let currentSocket;
+        const closeWebSocket = async () => {
+            if (currentSocket) {
+                currentSocket.close();
+            }
+        };
         const connect = (endpoint) => {
             // Open our secure websocket
-            const socket = new WebSocket(endpoint);
-            socket.onopen = (event) => {
+            currentSocket = new WebSocket(endpoint);
+            currentSocket.onopen = (event) => {
                 addMessage('opened: ' + JSON.stringify(event));
             }
-            socket.onclose = (event) => {
+            currentSocket.onclose = (event) => {
                 addMessage('closed: ' + JSON.stringify(event));
             }
-            socket.onmessage = (message) => {
+            currentSocket.onmessage = (message) => {
                 addMessage('onmessage: ' + message.data);
             }
-            socket.onerror = (error) => {
+            currentSocket.onerror = (error) => {
                 addMessage('onerror: ' + JSON.stringify(error));
             }
         };
@@ -438,6 +444,7 @@
             <label for="ws_endpoint">Endpoint URI</label>
             <input id="ws_endpoint" type="text" value="">
             <button onclick="openWebSocket()">Open WebSocket</button>
+            <button onclick="closeWebSocket()">Close WebSocket</button>
         </div>
         <div class="container">
             <h1>Messages</h1>
